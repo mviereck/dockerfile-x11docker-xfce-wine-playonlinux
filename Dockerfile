@@ -1,38 +1,36 @@
 # x11docker/lxde-wine
-# Run wine and playonlinux on xfce desktop in docker. 
-#
+# Run wine on LXDE desktop in docker. 
 # Use x11docker to run image. 
-# Get x11docker and x11docker-gui from github: 
+# Get x11docker script and x11docker-gui from github: 
 #   https://github.com/mviereck/x11docker 
 #
 # Examples: x11docker --desktop x11docker/xfce-wine-playonlinux
 #           x11docker --xephyr --desktop x11docker/xfce-wine-playonlinux
 #           x11docker --xpra x11docker/xfce-wine-playonlinux playonlinux
 # To create a persistant home folder to preserve your wine installations, use options --home --hostuser
-# Examples: x11docker --desktop --home --hostuser x11docker/xfce-wine-playonlinux
+# Examples: x11docker --desktop --home --hostuser x11docker/xfce-wine-playonlinux start
 #           x11docker --xephyr --desktop --home --hostuser x11docker/xfce-wine-playonlinux start
 #           x11docker --xpra --home --hostuser x11docker/xfce-wine-playonlinux playonlinux
-
-# known issues:
-#  * wine-gecko2.40 seems to be not recognized
-
+# You can have pulseaudio sound, too:
+#           x11docker --pulseaudio --xpra --home --hostuser x11docker/xfce-wine-playonlinux playonlinux
+# 
 
 FROM x11docker/xfce:latest
 
 RUN apt-get update
 
 # include wine ppa
-RUN echo "deb http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu xenial main"        > /etc/apt/sources.list.d/wine_ppa.list
-RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com     883E8688397576B6C509DF495A9A06AEF9CB8DB0
+#RUN echo "deb http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu xenial main"        > /etc/apt/sources.list.d/wine_ppa.list
+#RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com     883E8688397576B6C509DF495A9A06AEF9CB8DB0
 
 # add multiarch support
 RUN dpkg --add-architecture i386
 RUN apt-get update
 
 # install wine
-RUN apt-get install -y wine1.8
+RUN apt-get install -y wine
 RUN apt-get install -y winetricks
-# not available in ppa for xenial:
+# (not available in ppa for xenial)
 #RUN apt-get install -y wine-mono4.5.6
 #RUN apt-get install -y wine-gecko2.36
 
@@ -52,7 +50,7 @@ RUN apt-get install -y playonlinux
 RUN apt-get install -y xterm gettext
 
 # OpenGl support in the dependencies
-#RUN apt-get install -y mesa-utils mesa-utils-extra
+RUN apt-get install -y mesa-utils mesa-utils-extra
 
 # install q4wine, another frontend for wine
 RUN apt-get install -y q4wine
@@ -64,14 +62,17 @@ RUN apt-get install -y dillo
 RUN apt-get update
 RUN apt-get install -y evince-gtk
 
-# enable this for sound controls
-# (to use sound, you need further configuration in the docker run command.
-#  sound forwarding is still not well supported by docker)
-#RUN apt-get install -y pavucontrol
+# pulseaudio sound +control
+RUN apt-get update
+RUN apt-get install -y pavucontrol
+
+# Some panel goodies
+RUN apt-get install -y xfce4-whiskermenu-plugin xfce4-clipman-plugin xfce4-linelight-plugin xfce4-screenshooter-plugin xfce4-notes-plugin
+
 
 # clean up
-RUN apt-get clean
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+#RUN apt-get clean
+#RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
 # create desktop icons that will be copied to every new user
@@ -205,6 +206,69 @@ Name=OleView\n\
 Exec=wine oleview\n\
 Icon=preferences-system\n\
 " > /etc/skel/Desktop/WineOleView.desktop
+
+
+# Set some xfce config to have visible icons
+RUN mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
+RUN echo '<?xml version="1.0" encoding="UTF-8"?>                     \
+<channel name="xsettings" version="1.0">                             \
+  <property name="Net" type="empty">                                 \
+    <property name="ThemeName" type="string" value="Raleigh"/>       \
+    <property name="IconThemeName" type="string" value="Humanity"/>  \
+  </property>                                                        \
+</channel>                                                           \
+' > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
+
+# Create xfce4 panel config
+RUN echo '<?xml version="1.0" encoding="UTF-8"?>\
+<channel name="xfce4-panel" version="1.0">\
+  <property name="configver" type="int" value="2"/>\
+  <property name="panels" type="array">\
+    <value type="int" value="1"/>\
+    <property name="panel-1" type="empty">\
+      <property name="position" type="string" value="p=6;x=0;y=0"/>\
+      <property name="length" type="uint" value="100"/>\
+      <property name="position-locked" type="bool" value="true"/>\
+      <property name="size" type="uint" value="30"/>\
+      <property name="plugin-ids" type="array">\
+        <value type="int" value="22"/>\
+        <value type="int" value="7"/>\
+        <value type="int" value="3"/>\
+        <value type="int" value="15"/>\
+        <value type="int" value="16"/>\
+        <value type="int" value="23"/>\
+        <value type="int" value="25"/>\
+        <value type="int" value="24"/>\
+        <value type="int" value="4"/>\
+        <value type="int" value="5"/>\
+        <value type="int" value="6"/>\
+      </property>\
+    </property>\
+  </property>\
+  <property name="plugins" type="empty">\
+    <property name="plugin-3" type="string" value="tasklist"/>\
+    <property name="plugin-15" type="string" value="separator">\
+      <property name="expand" type="bool" value="true"/>\
+      <property name="style" type="uint" value="0"/>\
+    </property>\
+    <property name="plugin-4" type="string" value="pager"/>\
+    <property name="plugin-5" type="string" value="clock"/>\
+    <property name="plugin-6" type="string" value="systray">\
+      <property name="names-visible" type="array">\
+        <value type="string" value="vlc"/>\
+      </property>\
+    </property>\
+    <property name="plugin-7" type="string" value="showdesktop"/>\
+    <property name="plugin-16" type="string" value="pulseaudio">\
+      <property name="enable-keyboard-shortcuts" type="bool" value="true"/>\
+    </property>\
+    <property name="plugin-22" type="string" value="whiskermenu"/>\
+    <property name="plugin-23" type="string" value="xfce4-clipman-plugin"/>\
+    <property name="plugin-24" type="string" value="screenshooter"/>\
+    <property name="plugin-25" type="string" value="xfce4-notes-plugin"/>\
+  </property>\
+</channel>\
+' > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 
 
 # doesn't work because it needs mouse clicks
