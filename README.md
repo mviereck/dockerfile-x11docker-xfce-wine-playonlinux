@@ -1,8 +1,8 @@
 # x11docker/xfce-wine-playonlinux
 
-XFCE desktop containing wine and playonlinux
+XFCE desktop containing wine, playonlinux and pulseaudio.
 
- - Use x11docker to run image. 
+ - Use x11docker to run image on a second X server with GUI and pulseaudio sound support. 
  - Get x11docker and x11docker-gui from github: 
 https://github.com/mviereck/x11docker 
 
@@ -18,7 +18,3 @@ https://github.com/mviereck/x11docker
 
 - Use host folder to preserve installed Windows applications. Create a container user similar to your host user to avoid file permission issues. Show PlayOnLinux in a window on your main desktop:
  - x11docker --xpra --hostuser --home x11docker/xfce-wine-playonlinux playonlinux
-
-
-# known issues:
- - wine-gecko2.40 is installed, but seems to be not recognized
