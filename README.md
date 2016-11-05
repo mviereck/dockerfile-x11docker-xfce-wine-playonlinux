@@ -18,3 +18,6 @@ https://github.com/mviereck/x11docker
 
 - Use host folder to preserve installed Windows applications. Create a container user similar to your host user to avoid file permission issues. Show PlayOnLinux in a window on your main desktop:
  - x11docker --xpra --hostuser --home x11docker/xfce-wine-playonlinux playonlinux
+ 
+ ![screenshot](/screenshot-xce-wine-playonlinux.png?raw=true "Optional Title")
+
