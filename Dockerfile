@@ -20,22 +20,18 @@ FROM x11docker/xfce:latest
 RUN apt-get update
 
 # include wine ppa
-#RUN echo "deb http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu xenial main"        > /etc/apt/sources.list.d/wine_ppa.list
-#RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com     883E8688397576B6C509DF495A9A06AEF9CB8DB0
+RUN echo "deb http://ppa.launchpad.net/ubuntu-wine/ppa/ubuntu xenial main"        > /etc/apt/sources.list.d/wine_ppa.list
+RUN apt-key adv --recv-keys --keyserver keyserver.ubuntu.com     883E8688397576B6C509DF495A9A06AEF9CB8DB0
 
 # add multiarch support
 RUN dpkg --add-architecture i386
 RUN apt-get update
 
 # install wine
-RUN apt-get install -y wine
-RUN apt-get install -y winetricks
-# (not available in ppa for xenial)
-#RUN apt-get install -y wine-mono4.5.6
-#RUN apt-get install -y wine-gecko2.36
+RUN apt-get install -y wine1.8
 
 # include playonlinux repo 
-# (not needed right now. ubuntu 16.04 includes actual playonlinux version)
+# (not needed right now. ubuntu 16.04 xenial includes actual playonlinux version)
 # RUN wget -q "http://deb.playonlinux.com/public.gpg" -O- | sudo apt-key add -
 # RUN wget http://deb.playonlinux.com/playonlinux_trusty.list -O /etc/apt/sources.list.d/playonlinux.list
 # RUN apt-get update
@@ -49,30 +45,42 @@ RUN apt-get install -y playonlinux
 # playonlinux wants to have this:
 RUN apt-get install -y xterm gettext
 
-# OpenGl support in the dependencies
-RUN apt-get install -y mesa-utils mesa-utils-extra
-
 # install q4wine, another frontend for wine
 RUN apt-get install -y q4wine
+
+
+## some additional installations
+
+## some X libs, f.e. allowing videos in Xephyr
+RUN apt-get install -y --no-install-recommends x11-utils
+
+## OpenGl support in dependencies
+RUN apt-get install -y mesa-utils mesa-utils-extra
+
+## Pulseaudio support
+RUN apt-get install -y --no-install-recommends pulseaudio
+# enable one of the following to get sound controls
+#RUN apt-get install -y --no-install-recommends pavucontrol
+#RUN apt-get install -y --no-install-recommends pasystray
+
+## Xrandr and some other goodies
+RUN apt-get install -y x11-xserver-utils
 
 # dillo browser: not needed for wine, but useful to download windows applications
 RUN apt-get install -y dillo
 
 # PDF viewer evince-gtk
-RUN apt-get update
 RUN apt-get install -y evince-gtk
 
-# pulseaudio sound +control
-RUN apt-get update
-RUN apt-get install -y pavucontrol
+## VLC media player
+#RUN apt-get install -y vlc
 
-# Some panel goodies
-RUN apt-get install -y xfce4-whiskermenu-plugin xfce4-clipman-plugin xfce4-linelight-plugin xfce4-screenshooter-plugin xfce4-notes-plugin
 
 
 # clean up
-#RUN apt-get clean
-#RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 
 
 # create desktop icons that will be copied to every new user
@@ -207,18 +215,6 @@ Exec=wine oleview\n\
 Icon=preferences-system\n\
 " > /etc/skel/Desktop/WineOleView.desktop
 
-
-# Set some xfce config to have visible icons
-RUN mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml
-RUN echo '<?xml version="1.0" encoding="UTF-8"?>                     \
-<channel name="xsettings" version="1.0">                             \
-  <property name="Net" type="empty">                                 \
-    <property name="ThemeName" type="string" value="Raleigh"/>       \
-    <property name="IconThemeName" type="string" value="Humanity"/>  \
-  </property>                                                        \
-</channel>                                                           \
-' > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xsettings.xml
-
 # Create xfce4 panel config
 RUN echo '<?xml version="1.0" encoding="UTF-8"?>\
 <channel name="xfce4-panel" version="1.0">\
@@ -237,11 +233,11 @@ RUN echo '<?xml version="1.0" encoding="UTF-8"?>\
         <value type="int" value="15"/>\
         <value type="int" value="16"/>\
         <value type="int" value="23"/>\
-        <value type="int" value="25"/>\
         <value type="int" value="24"/>\
         <value type="int" value="4"/>\
         <value type="int" value="5"/>\
         <value type="int" value="6"/>\
+        <value type="int" value="1"/>\
       </property>\
     </property>\
   </property>\
@@ -265,19 +261,20 @@ RUN echo '<?xml version="1.0" encoding="UTF-8"?>\
     <property name="plugin-22" type="string" value="whiskermenu"/>\
     <property name="plugin-23" type="string" value="xfce4-clipman-plugin"/>\
     <property name="plugin-24" type="string" value="screenshooter"/>\
-    <property name="plugin-25" type="string" value="xfce4-notes-plugin"/>\
+    <property name="plugin-1" type="string" value="actions"/>\
   </property>\
 </channel>\
 ' > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 
-
-# doesn't work because it needs mouse clicks
-#RUN msiexec /usr/share/wine/gecko/msiexec /i wine_gecko-2.40-x86_64.msi
+RUN cp -R /etc/skel/. /root/
+RUN cp -R /etc/skel/* /root/
 
 # create startscript
-# (will copy Desktop icons, if not already present, and start x-session-manager
 RUN echo '#! /bin/bash\n\
-if [ ! -e "$HOME/Desktop" ] ; then cp -R /etc/skel/* $HOME ; fi\n\
+if [ ! -e "$HOME/.config" ] ; then\n\
+  cp -R /etc/skel/. $HOME/ \n\
+  cp -R /etc/skel/* $HOME/ \n\
+fi\n\
 x-session-manager\n\
 ' > /usr/local/bin/start 
 RUN chmod +x /usr/local/bin/start 
