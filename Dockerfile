@@ -275,6 +275,16 @@ if [ ! -e "$HOME/.config" ] ; then\n\
   cp -R /etc/skel/. $HOME/ \n\
   cp -R /etc/skel/* $HOME/ \n\
 fi\n\
+case $DISPLAY in\n\
+  "")  echo "Need X server to start Xfce and/or PlayOnLinux.\n\
+  To run GUI applications in docker, you can use x11docker.\n\
+  Get x11docker from github: https://github.com/mviereck/x11docker\n\
+  Run image desktop with command:\n\
+    x11docker --desktop x11docker/xfce-wine-playonlinux start"\n\
+  Or run PlayOnLinux only:
+    x11docker x11docker/xfce-wine-playonlinux playonlinux"\n\
+  exit 1 ;;\n\
+esac\n\
 x-session-manager\n\
 ' > /usr/local/bin/start 
 RUN chmod +x /usr/local/bin/start 
