@@ -1,6 +1,6 @@
 # x11docker/xfce-wine-playonlinux
 
-XFCE desktop containing wine, playonlinux and pulseaudio.
+XFCE desktop containing wine, pulseaudio, winetricks, q4wine and playonlinux
 
  - Use x11docker to run image on a second X server with GUI and pulseaudio sound support. 
  - Get x11docker and x11docker-gui from github: 
