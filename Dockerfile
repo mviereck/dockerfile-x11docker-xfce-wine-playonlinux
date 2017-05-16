@@ -243,7 +243,7 @@ RUN echo '<?xml version="1.0" encoding="UTF-8"?>\
 
 # create startscript 
 RUN echo '#! /bin/bash\n\
-[ "$HOME" = "/tmp" ] && export HOME=/tmp/fakehome && mkdir -p $HOME
+[ "$HOME" = "/tmp" ] && export HOME=/tmp/fakehome && mkdir -p $HOME \n\
 [ -n $HOME ] && [ ! -e $HOME/.config ] && {\n\
   cp -R /etc/skel/* $HOME\n\
   cp -R /etc/skel/.* $HOME\n\
