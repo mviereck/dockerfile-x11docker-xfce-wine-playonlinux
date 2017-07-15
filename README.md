@@ -7,13 +7,13 @@ XFCE desktop containing wine, pulseaudio, winetricks, q4wine and playonlinux. Ba
 https://github.com/mviereck/x11docker 
 
 # Examples:
- - Run XFCE desktop including wine and playonlinux:
+Run XFCE desktop including wine and playonlinux:
   - `x11docker --desktop x11docker/xfce-wine-playonlinux`
 
- - Use host folder to preserve installed Windows applications:
+Use host folder to preserve installed Windows applications:
   - `x11docker --desktop --home x11docker/xfce-wine-playonlinux`
 
-- Run playolinux with pulseaudio sound and a shared host folder os home:
+Run playolinux with pulseaudio sound and a shared host folder os home:
  - `x11docker --hostuser --home --pulseaudio x11docker/xfce-wine-playonlinux playonlinux`
  
  # Screenshot
