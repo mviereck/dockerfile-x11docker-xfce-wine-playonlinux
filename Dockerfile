@@ -4,12 +4,12 @@
 # Get x11docker script and x11docker-gui from github: 
 #   https://github.com/mviereck/x11docker 
 #
-# Examples: x11docker --wm=none x11docker/xfce-wine-playonlinux
+# Examples: x11docker --desktop x11docker/xfce-wine-playonlinux
 #           x11docker x11docker/xfce-wine-playonlinux playonlinux
 #
 # Use option --home to create a persistant home folder preserving your wine installations.
-# Examples: x11docker --wm=none --home x11docker/xfce-wine-playonlinux
-#           x11docker --home x11docker/xfce-wine-playonlinux playonlinux
+# Examples: x11docker --home --desktop x11docker/xfce-wine-playonlinux
+#           x11docker --home           x11docker/xfce-wine-playonlinux playonlinux
 #
 # To have pulseaudio sound, add option --pulseaudio.
 # To have hardware accelerated graphics, use option --gpu.
@@ -19,45 +19,36 @@ FROM x11docker/xfce:latest
 RUN echo "deb http://deb.debian.org/debian stretch contrib" >> /etc/apt/sources.list
 RUN dpkg --add-architecture i386
 RUN apt-get update
-RUN apt-get install -y xfce4-whiskermenu-plugin xfce4-notes-plugin
 
-# install wine
+# wine
 RUN apt-get install -y wine wine32 wine64
 RUN apt-get install -y fonts-wine winetricks ttf-mscorefonts-installer winbind
+
 # wine gecko
 RUN mkdir -p /usr/share/wine/gecko
 RUN cd /usr/share/wine/gecko && wget http://dl.winehq.org/wine/wine-gecko/2.40/wine_gecko-2.40-x86.msi
+
 # wine mono
 RUN mkdir -p /usr/share/wine/mono
 RUN cd /usr/share/wine/mono && wget https://dl.winehq.org/wine/wine-mono/4.7.0/wine-mono-4.7.0.msi
 
-# install playonlinux
+# PlayOnLinux
 RUN apt-get install -y playonlinux xterm gettext
 
-# install q4wine, another frontend for wine
+# q4wine, another frontend for wine
 RUN apt-get install -y q4wine
 
-## some X libs, f.e. allowing videos in Xephyr
-RUN apt-get install -y --no-install-recommends x11-utils libxv1
+## pulseaudio
+RUN apt-get install -y --no-install-recommends pulseaudio pasystray pavucontrol
 
-## OpenGL support
-RUN apt-get install -y mesa-utils mesa-utils-extra libgl1-mesa-glx libglew2.0 libglu1-mesa libgl1-mesa-dri libdrm2 libgles2-mesa libegl1-mesa
+# Utils: browser and pdf viewer
+RUN apt-get install -y dillo evince-gtk
 
-## Pulseaudio support
-RUN apt-get install -y --no-install-recommends pulseaudio
-# enable one of the following to get sound controls
-RUN apt-get install -y --no-install-recommends pasystray
-# RUN apt-get install -y --no-install-recommends pavucontrol
+# Additional Xfce utils
+RUN apt-get install -y xfce4-whiskermenu-plugin xfce4-notes-plugin
 
-# dillo browser: not needed for wine, but useful to download windows applications
-RUN apt-get install -y dillo
-
-# PDF viewer evince-gtk
-RUN apt-get install -y evince-gtk
-
-# clean up
-RUN apt-get clean
-RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+## Add this for chinese, japanese and korean fonts in wine
+#winetricks cjkfonts
 
 
 # create desktop icons that will be copied to every new user
@@ -191,6 +182,13 @@ Name=OleView\n\
 Exec=wine oleview\n\
 Icon=preferences-system\n\
 " > /etc/skel/Desktop/WineOleView.desktop
+
+RUN echo "#! /bin/bash\n\
+# To install chinese, japanese and korean fonts for wine, run\n\
+# winetricks cjkfonts\n\
+xterm -e 'winetricks cjkfonts'\n\
+" > "/etc/skel/Desktop/chinese, japanese and korean font installer for wine"
+RUN chmod +x "/etc/skel/Desktop/chinese, japanese and korean font installer for wine"
 
 # Create xfce4 panel config
 RUN mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/
