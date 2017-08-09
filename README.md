@@ -14,6 +14,9 @@ Use host folder to preserve installed Windows applications and desktop settings:
 Run playonlinux with pulseaudio sound and a shared host folder as container home:
  - `x11docker --home --pulseaudio x11docker/xfce-wine-playonlinux playonlinux`
  
+# Fonts: chinese, japanese, korean
+To enable chinese, japanese and korean fonts in wine, run `winetricks cjkfonts`. You can also use a starter provided on the desktop  for this. 
+
  # Screenshot
  Screenshot showing Xfce desktop with wine and pulseaudio sound in a Xephyr window:
  
