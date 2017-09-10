@@ -244,7 +244,7 @@ RUN echo '#! /bin/bash\n\
 [ "$HOME" = "/tmp" ] && export HOME=/tmp/fakehome && mkdir -p $HOME \n\
 [ -n $HOME ] && [ ! -e $HOME/.config ] && {\n\
   cp -R /etc/skel/* $HOME\n\
-  cp -R /etc/skel/.* $HOME\n\
+  cp -R /etc/skel/. $HOME\n\
 }\n\
 cd $HOME\n\
 startxfce4\n\
