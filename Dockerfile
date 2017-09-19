@@ -241,11 +241,7 @@ RUN echo '<?xml version="1.0" encoding="UTF-8"?>\
 
 # create startscript 
 RUN echo '#! /bin/bash\n\
-[ "$HOME" = "/tmp" ] && export HOME=/tmp/fakehome && mkdir -p $HOME \n\
-[ -n $HOME ] && [ ! -e $HOME/.config ] && {\n\
-  cp -R /etc/skel/* $HOME\n\
-  cp -R /etc/skel/. $HOME\n\
-}\n\
+[ -n $HOME ] && [ ! -e $HOME/.config ] && cp -R /etc/skel/. $HOME\n\
 cd $HOME\n\
 startxfce4\n\
 ' > /usr/local/bin/start 
