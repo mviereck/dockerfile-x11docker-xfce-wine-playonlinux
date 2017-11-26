@@ -16,27 +16,28 @@
 
 
 FROM x11docker/xfce:latest
+
+ENV DEBIAN_FRONTEND noninteractive
 RUN echo "deb http://deb.debian.org/debian stretch contrib" >> /etc/apt/sources.list
 RUN dpkg --add-architecture i386
 RUN apt-get update
 
 # wine
-RUN apt-get install -y wine wine32 wine64
-RUN apt-get install -y fonts-wine winetricks ttf-mscorefonts-installer winbind
+RUN apt-get install -y wine wine32 wine64 \
+    fonts-wine winetricks ttf-mscorefonts-installer winbind
 
 # wine gecko
-RUN mkdir -p /usr/share/wine/gecko
-RUN cd /usr/share/wine/gecko && wget http://dl.winehq.org/wine/wine-gecko/2.40/wine_gecko-2.40-x86.msi
+RUN mkdir -p /usr/share/wine/gecko && \
+    cd /usr/share/wine/gecko && \
+    wget http://dl.winehq.org/wine/wine-gecko/2.40/wine_gecko-2.40-x86.msi
 
 # wine mono
-RUN mkdir -p /usr/share/wine/mono
-RUN cd /usr/share/wine/mono && wget https://dl.winehq.org/wine/wine-mono/4.7.0/wine-mono-4.7.0.msi
+RUN mkdir -p /usr/share/wine/mono && \
+    cd /usr/share/wine/mono && \
+    wget https://dl.winehq.org/wine/wine-mono/4.7.0/wine-mono-4.7.0.msi
 
-# PlayOnLinux
-RUN apt-get install -y playonlinux xterm gettext
-
-# q4wine, another frontend for wine
-RUN apt-get install -y q4wine
+# PlayOnLinux and q4wine
+RUN apt-get install -y playonlinux xterm gettext q4wine
 
 ## pulseaudio
 RUN apt-get install -y --no-install-recommends pulseaudio pasystray pavucontrol
@@ -238,13 +239,3 @@ RUN echo '<?xml version="1.0" encoding="UTF-8"?>\
 </channel>\
 ' > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
 
-
-# create startscript 
-RUN echo '#! /bin/bash\n\
-[ -n $HOME ] && [ ! -e $HOME/.config ] && cp -R /etc/skel/. $HOME\n\
-cd $HOME\n\
-startxfce4\n\
-' > /usr/local/bin/start 
-RUN chmod +x /usr/local/bin/start 
-
-CMD start
