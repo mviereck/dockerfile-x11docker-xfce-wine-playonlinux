@@ -1,60 +1,70 @@
 # x11docker/xfce-wine-playonlinux
+#
 # Run wine on Xfce desktop in docker. 
 # Use x11docker to run image. 
-# Get x11docker script and x11docker-gui from github: 
+# Get x11docker from github: 
 #   https://github.com/mviereck/x11docker 
 #
-# Examples: x11docker --desktop x11docker/xfce-wine-playonlinux
-#           x11docker x11docker/xfce-wine-playonlinux playonlinux
+# Use option --home to create a persistant home folder
+# in ~/x11docker to preserve your wine installations.
 #
-# Use option --home to create a persistant home folder preserving your wine installations.
-# Examples: x11docker --home --desktop x11docker/xfce-wine-playonlinux
-#           x11docker --home           x11docker/xfce-wine-playonlinux playonlinux
+# Examples: 
+#   - Run desktop:
+#       x11docker --home --desktop x11docker/xfce-wine-playonlinux
+#   - Run PlayOnLinux only:
+#       x11docker --home x11docker/xfce-wine-playonlinux playonlinux
 #
-# To have pulseaudio sound, add option --pulseaudio.
-# To have hardware accelerated graphics, use option --gpu.
+# Options:
+# Persistent home folder stored on host with   --home
+# Shared host folder with                      --sharedir DIR
+# Hardware acceleration with option            --gpu
+# Clipboard sharing with option                --clipboard
+# Sound support with option                    --alsa
+# With pulseaudio in image, sound support with --pulseaudio
+#
+# Look at x11docker --help for further options.
 
 
 FROM x11docker/xfce:latest
-
 ENV DEBIAN_FRONTEND noninteractive
+
 RUN echo "deb http://deb.debian.org/debian stretch contrib" >> /etc/apt/sources.list
-RUN dpkg --add-architecture i386
-RUN apt-get update
+RUN dpkg --add-architecture i386 && apt-get update && apt-get dist-upgrade -y
 
 # wine
-RUN apt-get install -y wine wine32 wine64 \
-    fonts-wine winetricks ttf-mscorefonts-installer winbind
+RUN apt-get install -y wine wine32 wine64
+RUN apt-get install -y fonts-wine winetricks ttf-mscorefonts-installer winbind
 
 # wine gecko
-RUN mkdir -p /usr/share/wine/gecko && \
-    cd /usr/share/wine/gecko && \
-    wget http://dl.winehq.org/wine/wine-gecko/2.40/wine_gecko-2.40-x86.msi
+RUN mkdir -p /usr/share/wine/gecko
+RUN cd /usr/share/wine/gecko && wget http://dl.winehq.org/wine/wine-gecko/2.40/wine_gecko-2.40-x86.msi
 
 # wine mono
-RUN mkdir -p /usr/share/wine/mono && \
-    cd /usr/share/wine/mono && \
-    wget https://dl.winehq.org/wine/wine-mono/4.7.0/wine-mono-4.7.0.msi
+RUN mkdir -p /usr/share/wine/mono
+RUN cd /usr/share/wine/mono && wget https://dl.winehq.org/wine/wine-mono/4.7.0/wine-mono-4.7.0.msi
 
-# PlayOnLinux and q4wine
-RUN apt-get install -y playonlinux xterm gettext q4wine
+# PlayOnLinux
+RUN apt-get install -y playonlinux xterm gettext
 
-## pulseaudio
+# q4wine, another frontend for wine
+RUN apt-get install -y q4wine
+
+# pulseaudio
 RUN apt-get install -y --no-install-recommends pulseaudio pasystray pavucontrol
 
+# install all language locales
+RUN apt-get install locales-all
+
 # Utils: browser and pdf viewer
-RUN apt-get install -y dillo evince-gtk
+RUN apt-get install -y midori evince-gtk
 
-# Additional Xfce utils
-RUN apt-get install -y xfce4-whiskermenu-plugin xfce4-notes-plugin
-
-## Add this for chinese, japanese and korean fonts in wine
+# Enable this for chinese, japanese and korean fonts in wine
 #winetricks cjkfonts
 
 
 # create desktop icons that will be copied to every new user
 #
-RUN mkdir /etc/skel/Desktop
+RUN mkdir -p /etc/skel/Desktop
 
 RUN echo "[Desktop Entry]\n\
 Version=1.0\n\
@@ -191,51 +201,6 @@ xterm -e 'winetricks cjkfonts'\n\
 " > "/etc/skel/Desktop/chinese, japanese and korean font installer for wine"
 RUN chmod +x "/etc/skel/Desktop/chinese, japanese and korean font installer for wine"
 
-# Create xfce4 panel config
-RUN mkdir -p /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/
-RUN echo '<?xml version="1.0" encoding="UTF-8"?>\
-<channel name="xfce4-panel" version="1.0">\
-  <property name="configver" type="int" value="2"/>\
-  <property name="panels" type="array">\
-    <value type="int" value="1"/>\
-    <property name="panel-1" type="empty">\
-      <property name="position" type="string" value="p=6;x=0;y=0"/>\
-      <property name="length" type="uint" value="100"/>\
-      <property name="position-locked" type="bool" value="true"/>\
-      <property name="size" type="uint" value="30"/>\
-      <property name="plugin-ids" type="array">\
-        <value type="int" value="22"/>\
-        <value type="int" value="7"/>\
-        <value type="int" value="3"/>\
-        <value type="int" value="15"/>\
-        <value type="int" value="23"/>\
-        <value type="int" value="24"/>\
-        <value type="int" value="4"/>\
-        <value type="int" value="5"/>\
-        <value type="int" value="6"/>\
-        <value type="int" value="1"/>\
-      </property>\
-    </property>\
-  </property>\
-  <property name="plugins" type="empty">\
-    <property name="plugin-3" type="string" value="tasklist"/>\
-    <property name="plugin-15" type="string" value="separator">\
-      <property name="expand" type="bool" value="true"/>\
-      <property name="style" type="uint" value="0"/>\
-    </property>\
-    <property name="plugin-4" type="string" value="pager"/>\
-    <property name="plugin-5" type="string" value="clock"/>\
-    <property name="plugin-6" type="string" value="systray">\
-      <property name="names-visible" type="array">\
-        <value type="string" value="vlc"/>\
-      </property>\
-    </property>\
-    <property name="plugin-7" type="string" value="showdesktop"/>\
-    <property name="plugin-22" type="string" value="whiskermenu"/>\
-    <property name="plugin-23" type="string" value="xfce4-clipman-plugin"/>\
-    <property name="plugin-24" type="string" value="screenshooter"/>\
-    <property name="plugin-1" type="string" value="actions"/>\
-  </property>\
-</channel>\
-' > /etc/skel/.config/xfce4/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+# ENTRYPOINT and CMD are already defined in x11docker/xfce
 
+ENV DEBIAN_FRONTEND newt
