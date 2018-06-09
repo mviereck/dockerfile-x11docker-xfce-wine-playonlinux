@@ -41,7 +41,7 @@ RUN cd /usr/share/wine/gecko && wget http://dl.winehq.org/wine/wine-gecko/2.40/w
 
 # wine mono
 RUN mkdir -p /usr/share/wine/mono
-RUN cd /usr/share/wine/mono && wget https://dl.winehq.org/wine/wine-mono/4.7.0/wine-mono-4.7.0.msi
+RUN cd /usr/share/wine/mono && wget https://dl.winehq.org/wine/wine-mono/4.7.1/wine-mono-4.7.1.msi
 
 # PlayOnLinux
 RUN apt-get install -y playonlinux xterm gettext
