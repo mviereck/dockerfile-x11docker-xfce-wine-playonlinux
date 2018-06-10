@@ -38,6 +38,7 @@ RUN apt-get install -y fonts-wine winetricks ttf-mscorefonts-installer winbind
 # wine gecko
 RUN mkdir -p /usr/share/wine/gecko
 RUN cd /usr/share/wine/gecko && wget https://dl.winehq.org/wine/wine-gecko/2.47/wine_gecko-2.47-x86.msi
+RUN cd /usr/share/wine/gecko && wget https://dl.winehq.org/wine/wine-gecko/2.47/wine_gecko-2.47-x86_64.msi
 
 # wine mono
 RUN mkdir -p /usr/share/wine/mono
