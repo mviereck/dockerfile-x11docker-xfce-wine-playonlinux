@@ -31,8 +31,15 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN echo "deb http://deb.debian.org/debian stretch contrib" >> /etc/apt/sources.list
 RUN dpkg --add-architecture i386 && apt-get update && apt-get dist-upgrade -y
 
+# Add apps to allow WineHQ repo to be used
+RUN apt-get install -y wget gnupg apt-transport-https
+
+# winehq repo
+RUN wget -nc https://dl.winehq.org/wine-builds/Release.key && apt-key add Release.key
+RUN echo "deb https://dl.winehq.org/wine-builds/debian/ stretch main" >> /etc/apt/sources.list
+
 # wine
-RUN apt-get install -y wine wine32 wine64
+RUN apt-get update && apt-get install -y winehq-stable
 RUN apt-get install -y fonts-wine winetricks ttf-mscorefonts-installer winbind
 
 # wine gecko
