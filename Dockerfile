@@ -31,8 +31,15 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN echo "deb http://deb.debian.org/debian stretch contrib" >> /etc/apt/sources.list
 RUN dpkg --add-architecture i386 && apt-get update && apt-get dist-upgrade -y
 
+# Add apps to allow WineHQ repo to be used
+RUN apt-get install -y wget gnupg apt-transport-https
+
+# winehq repo
+RUN wget -nc https://dl.winehq.org/wine-builds/Release.key && apt-key add Release.key
+RUN echo "deb https://dl.winehq.org/wine-builds/debian/ stretch main" >> /etc/apt/sources.list
+
 # wine
-RUN apt-get install -y wine wine32 wine64
+RUN apt-get update && apt-get install -y winehq-stable
 RUN apt-get install -y fonts-wine winetricks ttf-mscorefonts-installer winbind
 
 # wine gecko
@@ -201,6 +208,18 @@ xterm -e 'winetricks cjkfonts'\n\
 " > "/etc/skel/Desktop/chinese, japanese and korean font installer for wine"
 RUN chmod +x "/etc/skel/Desktop/chinese, japanese and korean font installer for wine"
 
-# ENTRYPOINT and CMD are already defined in x11docker/xfce
+# startscript to copy dotfiles from /etc/skel and to create softlinks to mono and gecko
+# runs either CMD or image command from docker run
+RUN echo '#! /bin/sh\n\
+[ -n "$HOME" ] && [ ! -e "$HOME/.config" ] && cp -R /etc/skel/. $HOME/ \n\
+mkdir -p $HOME/.cache/wine \n\
+ln -s /usr/share/wine/gecko/wine_gecko-2.47-x86.msi $HOME/.cache/wine \n\
+ln -s /usr/share/wine/mono/wine-mono-4.7.1.msi $HOME/.cache/wine \n\
+exec $*\n\
+' > /usr/local/bin/start
+RUN chmod +x /usr/local/bin/start
+
+ENTRYPOINT ["/usr/local/bin/start"]
+CMD ["startxfce4"]
 
 ENV DEBIAN_FRONTEND newt
