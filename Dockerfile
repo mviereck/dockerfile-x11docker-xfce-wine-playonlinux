@@ -28,11 +28,17 @@
 FROM x11docker/xfce:latest
 ENV DEBIAN_FRONTEND noninteractive
 
+# contrib for winetricks
 RUN echo "deb http://deb.debian.org/debian stretch contrib" >> /etc/apt/sources.list
+
+# stretch-backports for latest wine
+RUN echo "deb http://deb.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
+
+# Multiarch for wine32
 RUN dpkg --add-architecture i386 && apt-get update && apt-get dist-upgrade -y
 
 # wine
-RUN apt-get install -y wine wine32 wine64
+RUN apt-get -t stretch-backports install -y wine
 RUN apt-get install -y fonts-wine winetricks ttf-mscorefonts-installer winbind
 
 # wine gecko
@@ -61,7 +67,6 @@ RUN apt-get install -y midori evince-gtk
 
 # Enable this for chinese, japanese and korean fonts in wine
 #winetricks cjkfonts
-
 
 # create desktop icons that will be copied to every new user
 #
@@ -201,6 +206,9 @@ RUN echo "#! /bin/bash\n\
 xterm -e 'winetricks cjkfonts'\n\
 " > "/etc/skel/Desktop/chinese, japanese and korean font installer for wine"
 RUN chmod +x "/etc/skel/Desktop/chinese, japanese and korean font installer for wine"
+
+# Use 32bit Wine by default
+ENV WINEARCH win32
 
 # ENTRYPOINT and CMD are already defined in x11docker/xfce
 
