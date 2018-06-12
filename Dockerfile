@@ -207,9 +207,6 @@ xterm -e 'winetricks cjkfonts'\n\
 " > "/etc/skel/Desktop/chinese, japanese and korean font installer for wine"
 RUN chmod +x "/etc/skel/Desktop/chinese, japanese and korean font installer for wine"
 
-# Use 32bit Wine by default
-ENV WINEARCH win32
-
 # ENTRYPOINT and CMD are already defined in x11docker/xfce
 
 ENV DEBIAN_FRONTEND newt
