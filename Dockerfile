@@ -56,7 +56,7 @@ RUN apt-get install -y mesa-utils mesa-utils-extra libxv1
 RUN apt-get install -y --no-install-recommends pulseaudio pasystray pavucontrol
 
 # Enable this for chinese, japanese and korean fonts in wine
-#winetricks cjkfonts
+#winetricks -q cjkfonts
 
 # create desktop icons
 #
