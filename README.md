@@ -7,7 +7,7 @@ Xfce desktop containing wine, winetricks, q4wine and playonlinux
 
 # Examples:
 Run Xfce desktop including wine:
-  - `x11docker --desktop x11docker/xfce-wine-playonlinux`
+  - `x11docker --desktop --cap-default x11docker/xfce-wine-playonlinux`
 
 Use host folder to preserve installed Windows applications with option `--home`: 
   - `x11docker --desktop --home x11docker/xfce-wine-playonlinux`
