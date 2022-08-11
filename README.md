@@ -4,6 +4,22 @@ Xfce desktop containing wine, winetricks, q4wine and playonlinux
 
  - Get [x11docker from github](https://github.com/mviereck/x11docker) to run GUI applications and desktop environments in docker images.
  - Use x11docker to run image. 
+ 
+# Building image
+You can pull the image from docker hub with `docker pull x11docker/xfce-wine-playonlinux`.
+However, the image on docker hub can be a bit outdated.
+I recommend to build the image yourself:
+```
+docker pull debian:bullseye
+x11docker --build x11docker/xfce
+x11docker --build x11docker/xfce-wine-playonlinux
+```
+Or, same with podman:
+```
+podman pull debian:bullseye
+x11docker --build x11docker/xfce --backend=podman
+x11docker --build x11docker/xfce-wine-playonlinux --backend=podman
+```
 
 # Examples:
 Run Xfce desktop including wine:
