@@ -60,7 +60,7 @@ RUN mkdir -p /usr/share/wine/gecko && \
 
 RUN mkdir -p /usr/share/wine/mono && \
     cd /usr/share/wine/mono && \
-    wget https://dl.winehq.org/wine/wine-mono/4.7.1/wine-mono-4.9.4.msi
+    wget https://dl.winehq.org/wine/wine-mono/4.9.4/wine-mono-4.9.4.msi
 
 RUN apt-get update && \
     env DEBIAN_FRONTEND=noninteractive apt-get install -y \
